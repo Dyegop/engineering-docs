@@ -1,0 +1,119 @@
+------ COMMANDS ------ 
+
+git init: Initialize the repository
+git status: Check the current directory changes and staging area.
+git config: Configure Git settings.
+git config --global --add --bool push.autoSetupRemote true: Automatically sets up a remote tracking branch for new branches when you push them
+git add <directory>: Add current files to staging.
+git commit -m "<commit-message>": Commit staging with a message.
+git commit -am "<commit-message>": Add & Commit staging with a message (only for edited and deleted).
+git log --oneline: Print the log as one line.
+git log --oneline --decorate --all --graph: Print the log as one line and in graph-mode.
+git reflog: Show the log of changing the HEAD. It's useful to find missing commits.
+git branch <branch-name>: Create a new branch.
+git branch -D <branch-name>: Delete a branch.
+git branch -m <new-name>: Rename the current branch to new-name
+git branch -m <old-name> <new-name>: Rename a given branch with old-name to new-name
+git checkout <branch-name>: Checkout to a branch.
+git checkout -b <branch-name>: Create and checkout to a branch.
+git diff <commit-hash-source> <commit-hash-destination>: Show the difference between two commits.
+git merge <branch-name>: Merge a branch into the current branch.
+git merge --squash <branch-name>: Merge a branch into the current branch as a single commit.
+git rebase <branch-name>: Rebase the current branch on another branch.
+git rebase <branch-name> -i: Rebase the current branch on another branch (with interactive mode).
+git cherry-pick <commit>: Apply changes for a certain commit to the current branch.
+git reset --hard <commit-hash>: Move the branch Head to a certain commit.
+git mv <source> <destination>: Move a file/directory from one place to another while tracking.
+git remote add <remote-name> <repository-name>: Add a remote tracking branch. <remote-name> is usually origin.
+git remote prune origin: Remove branches from local repository that no longer in remote.
+git remote update origin --prune
+git push: Push local commits.
+git push --set-upstream <remote-name> <branch-name> <repository-name>: Set a remote for a branch.
+git push -u <remote-name> <branch-name> <repository-name>: Set a remote for a branch (Same to the above one).
+git push -d <remote_name> <branchname>: Remove remote branch. In most cases, <remote_name> will be origin.
+git pull: Fetch commits and merge.
+git fetch: Fetch commits from remote.
+git fetch --prune: Remove branches that no longer exists on remote before fetching.
+git submodule add <repo-url> <path>: Add a submodule
+git submodule status --recursive: Show the current state of each submodule in your repository.
+git clone --recurse-submodules <repo-url>: Clone a Repo with submodules.
+
+
+
+
+------ ADVANCED COMMANDS ------ 
+
+Add git branch to terminal:
+# Add the following command to ~/.bashrc
+parse_git_branch() {
+    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+}
+export PS1="\u@\h \[\e[32m\]\w \[\e[91m\]\$(parse_git_branch)\[\e[00m\]$ "
+
+
+Merge branch bypassing post-merge:
+git merge <branch_name>
+	# Fix merge conflicts, if any
+git add .
+git commit --no-verify
+git push
+
+
+Merge given branch into current and force conflicting hunks to be auto-resolved cleanly by favoring our/their version:
+git merge <branch-name> --strategy-option ours/theirs
+
+
+Undoing a `git push`:
+git push -f origin last_known_good_commit:branch_name
+
+
+Disable/Enable githooks:
+git config core.hooksPath 							# See current githooks path, sometimes it does not work
+git config core.hooksPath '/dev/null'				# Disable githooks
+git config core.hooksPath '/value/you/had/before'	# Enable githooks
+git config --unset core.hooksPath					# If you don't know you previous githooks path, use this
+
+
+
+
+------ MERGE STRATEGIES -------
+
+3-Way Merge:
+	git checkout main
+	git pull origin main
+	git merge feature-branch
+	# If conflicts occur, resolve them
+	git add <filename>  # After resolving conflicts
+	git commit          # Complete the merge if conflicts were resolved manually
+	git push origin main
+	
+Squash Merge:
+	git checkout main
+	git pull origin main
+	git merge --squash feature-branch
+	git commit -m "Merge feature-branch with squash"
+	git push origin main
+
+Rebase
+	git checkout feature-branch
+	git pull origin main        # Optional: ensure you have latest main
+	git rebase main
+	# If conflicts occur, resolve them
+	git add <filename>
+	git rebase --continue
+	# After successful rebase:
+	git checkout main
+	git merge feature-branch    # Fast-forward merge (no new commit created)
+	git push origin main
+
+
+
+
+------ SUBMODULES -------
+
+A submodule is just a pointer to a specific commit in another repository. 
+The submodule repository is a completely independent repository by itself.
+
+Example use cases:
+	Including a shared library across multiple projects.
+	Keeping independent version control for a dependency.

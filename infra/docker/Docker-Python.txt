@@ -1,0 +1,35 @@
+Some considerations to deploy a Python app using Docker.
+
+Add the following command to your Dockerfile for a better Python and pip configuration
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONHASHSEED=random \
+    PYTHONFAULTHANDLER=1
+
+ENV PIP_DEFAULT_TIMEOUT=100 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_NO_CACHE_DIR=1
+
+PYTHONUNBUFFERED=1
+Make Python output immediate (no buffering).
+This allows logs to show up instantly, so it is easier to debug and monitor.
+
+PYTHONHASHSEED=random
+Use random hash seed for internal hash functions.
+THis improves security by making hash functions unpredictable.
+By default, Python 3 enables hash randomization unless you override it.
+
+PYTHONFAULTHANDLER=1
+Enable crash tracebacks on fatal errors.
+This helps diagnose crashes by printing detailed errors.
+
+PIP_DEFAULT_TIMEOUT=100
+Increase network timeout to 100 sec.
+This could help handling slow networks without failing early.
+
+PIP_DISABLE_PIP_VERSION_CHECK=1
+Skip pip self-version check
+This can speed up installs and avoids unnecessary network usage.
+
+PIP_NO_CACHE_DIR=1
+Don’t cache downloaded packages.
+This makes smaller images and cleaner installs.

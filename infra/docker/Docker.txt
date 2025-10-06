@@ -1,0 +1,199 @@
+------ DOCKER COMMANDS ------ 
+
+docker images: List all Docker images on the local machine
+docker pull <image>: Download an image from a registry
+docker build <path>: Build an image from a Dockerfile
+docker build -t <name>:<tag> <path>: Sets the given name and tag. Tag is optional
+docker build --target: Specify which stage of a multi-stage Dockerfile you want to build up to and stop there
+docker create --name <container_name> <image>: Run a container with the given name from the given image
+docker tag <image> <new_tag>: Add a tag to an image
+docker rmi <image>: Remove an image
+docker login -u <username> -p <password> <server>: Log in to a registry with given username and password
+docker ps: List all running containers
+docker ps -a: List all containers (including stopped ones)
+docker run <image>: Run a container from an image
+docker run -d <image>: Run a container in detached mode
+docker run -it <image>: Run a container in interactive mode with a terminal
+docker run --rm -it --entrypoint <command> <image>: Overrides CMD/ENTRYPOINT and automatically removes container when it exits
+docker run -v <volume>:<path> <image>: Mount a volume when running a container
+docker stop <container_id>: Stop a running container
+docker start <container_id>: Start a stopped container
+docker restart <container_id>: Restart a container
+docker rm <container_id>: Remove a container
+docker logs <container_id>: Fetch logs of a container
+docker exec -it <container_id> <command>: Execute a command inside a running container (e.g. /bin/bash)
+docker container prune: Remove all stopped containers
+docker container prune -f: Remove all stopped containers without confirmation prompt
+docker image prune: Remove dangling images only
+docker image prune -a: Remove all unused images
+docker image prune -f: Remove dangling images only without confirmation prompt
+docker volume ls: List all volumes.
+docker volume create <name>: Create a volume
+docker volume rm <name>: Remove a volume
+docker volume prune: Remove unused volumes
+docker volume inspect <volume>: Returns information about a volume
+docker network ls: List all networks
+docker network create <name>: Create a new network
+docker network connect <network> <container>: Connect a container to a network
+docker network disconnect <network> <container>: Disconnect a container from a network
+docker network rm <name>: Remove a network
+docker network prune: Remove unused networks
+docker system prune: Remove unused containers, networks, images, and build cache (interactive confirmation)
+docker system prune -a: Also remove unused images, not just dangling ones
+docker builder prune: Remove unused build cache
+docker builder prune -af: Remove all unused build cache, not just dangling ones
+docker inspect <container_or_image>: View low-level details about a container or image (like env vars, IP, volumes)
+docker history <image>: Show history of image layers
+docker diff <container>: Show changes to the container’s filesystem
+docker save -o <file>.tar <image>: Save an image to a .tar file (for transfer)
+docker load -i <file>.tar: Load a saved image from a .tar file
+docker export <container>: Export container filesystem (no history/layers)
+docker import <file>.tar: Import a container as an image
+
+# Cleanup
+docker container prune -f && docker image prune -a -f
+docker rm -f $(docker ps -aq) && docker rmi -f $(docker images -aq): WARNING! Removes all images and containers
+
+
+
+
+------ DOCKERFILE ------ 
+
+FROM <image>[:<tag>] [AS <name>]
+- Sets the base image for all subsequent instructions in that Docker build stage.
+- AS <name> command labels stages for reuse
+
+WORKDIR /path/to/dir
+- Creates the given directory inside the container if it doesn't exist.
+- Changes the current working directory to the given directory for all subsequent commands (RUN, CMD, COPY, ADD, etc).
+
+COPY <src> <dest>
+- Copies files and directories from your local build context into the Docker image.
+
+RUN command
+- Executes a command inside the container image during the build process.
+- Examples: 
+    RUN tail -f /dev/null            # runs in /bin/sh
+    RUN ["tail", "-f", "/dev/null"]  # avoids shell
+
+LABEL
+- Adds metadata to your Docker image in the form of key-value pairs.
+- This metadata provides information about the image.
+- Examples:
+    LABEL "org.opencontainers.image.authors"="foo" "org.opencontainers.image.created"="${BUILD_DATE}"
+    LABEL "org.opencontainers.image.version"="${VERSION}"
+
+
+ARG
+- Defines build-time variables that you can pass to the Docker build process.
+- These variables are available only during the image build and not inside the running container.
+- Example:
+    ARG VERSION=1.0.0
+    RUN echo "Building version ${VERSION}"
+- Example with bash:
+    ARG VERSION
+    docker build --build-arg VERSION=2.0.0 .
+
+
+ENV
+- Sets environment variables inside the Docker image.
+- These variables are available at build time and runtime (inside the container).
+- There are forms:
+    ENV KEY1=value1 ... KEYN=valueN
+    ENV KEY1 value1  # only for a single key-value pair
+- Examples:
+    ENV PORT 8080
+    ENV VIRTUAL_ENV=/venv PATH="$VIRTUAL_ENV/bin:$PATH"
+
+
+CMD
+- Specifies the default command and arguments to run when a container starts from the image.
+- The CMD can be overridden by specifying a command in docker run.
+- There are three common forms:
+    CMD ["executable", "param1", "param2"] - runs the command directly, no shell involved
+    CMD command param1 param2              - runs command through /bin/sh -c
+    ENTRYPOINT ["executable"]              - The CMD provides default arguments to ENTRYPOINT
+    CMD ["param1", "param2"]
+
+- Examples:
+    CMD ["python", "app.py"]
+    CMD python app.py
+    CMD "./entry_flask.sh"  # When you run the container, it executes this script unless overridden
+
+
+
+
+------ DOCUMENTATION ------
+
+Images
+    -A Docker image is a read-only template that contains a filesystem snapshot (like code, dependencies, binaries) and
+    metadata (like environment variables, entrypoints, etc.)
+    -Images serve as a blueprint for creating Docker containers.
+    -They are often built using a Dockerfile, which is a script containing a series of instructions for how to create
+    the image.
+
+Containers
+    -A container is a running instance of an image.
+    -Containers are isolated from each other and the host system, but they can communicate with each other.
+    -Each container contains an application and its dependencies, and it shares the kernel of the host operating system.
+
+Volumes
+    -A volume is a persistent storage mechanism managed by Docker.
+    -It stores data outside the container filesystem, so it’s not lost when the container is deleted.
+    -They provide a way to decouple the data from the container lifecycle.
+    -Volumes can be shared among multiple containers.
+
+Layers
+    -A layer is a snapshot of the filesystem at a certain step during the build.
+    -Layers are:
+        Stacked to form the final image
+        Immutable (unchangeable once created)
+        Cached for faster rebuilds
+        Read-only once created
+
+    -Important notes:
+        Each command run in a Dockerfile creates a new, separate image layer.
+        Combining commands to reduce the amount of layers, reducing the image size, for example:
+            RUN apt update && apt install -y curl
+
+            It is a good practice to combine commands to avoid cache issues.
+                In the previous example, if `apt update` is cached but `apt install` changes, Docker may reuse the old
+                package list and install outdated packages.
+
+Container Filesystem
+    -The container's filesystem in Docker is a layered, isolated environment where a container runs.
+    -When you run a container from an image, Docker adds a writable layer (called the container layer) on top of the
+    image layers.
+    -So the full container filesystem would be: [Base image layers] + [Writable container layer]
+    -Data in thw writable container layer is lost if the container is deleted, unless stored in a volume.
+
+Network
+    -Docker Compose creates a private network for your app.
+    -All services in the same docker-compose.yml file are automatically connected to that network.
+    -Services can talk to each other by service name (e.g. http://my-app:8000).
+    -You don’t need to expose ports to allow services to talk to each other inside the same Compose project.
+
+
+
+
+------ DOCKER MULTISTAGE ------
+
+Multi-stage builds in Docker allow you to use multiple FROM statements in a single Dockerfile.
+You can use one image to build your application, and a different one to run it, keeping the final image clean and small.
+
+Example:
+
+# Stage 1: Build the Go binary
+FROM golang:1.21 AS builder
+
+WORKDIR /app
+COPY . .
+RUN go build -o myapp
+
+# Stage 2: Create a minimal image
+FROM alpine:latest
+
+WORKDIR /app
+COPY --from=builder /app/myapp .
+
+CMD ["./myapp"]

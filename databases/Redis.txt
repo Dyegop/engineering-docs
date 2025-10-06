@@ -1,0 +1,91 @@
+------ REDIS BASICS ------
+
+Redis is an in-memory key-value data store, often used as a cache, message broker, or session store.
+It’s extremely fast because it keeps data in RAM, but can also persist to disk.
+
+Data is stored as a key-value pairs, where:
+    key   - Must be a string up to 512 MB.
+    value - Can be any of the supported data structures.
+
+Redis keys are binary-safe (Redis doesn’t care if it’s "user:1" or b"\x00\x01\x02", it just compares byte-for-byte).
+
+Key concepts:
+    In-memory       - All data is stored in RAM, so Redis is extremely fast read/write.
+    Persistence     - Provides several persistence options, such as RDB (Redis Database) or AOF (Append Only File).
+    Data structures - Supports multiple data structures such as strings, lists, sets, etc.
+    Single-threaded	- One command executes at a time, so there is no race conditions within Redis itself.
+    Pub/Sub	        - Built-in publish/subscribe messaging.
+    Replication	    - Can have replicas (read-only) for high availability.
+    Cluster mode	- Distributes keys across multiple nodes.
+
+
+
+
+------ PERSISTENCE ------
+
+Redis supports the following persistence options:
+    RDB (Redis Database): RDB persistence performs point-in-time snapshots of your dataset at specified intervals.
+    AOF (Append Only File): AOF persistence logs every write operation received by the server.
+    No persistence: You can disable persistence completely. This is sometimes used when caching.
+    RDB + AOF: You can also combine both AOF and RDB in the same instance.
+
+Write operations logged with AOF can then be replayed again at server startup, reconstructing the original dataset.
+Commands are logged using the same format as the Redis protocol itself.
+
+For additional info, see https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/
+
+
+
+
+------ SUPPORTED DATA STRUCTURES ------
+
+String - Stores text or binary data, up to 512 MB.
+    Commands: SET, GET, INCR, DECR, MGET, etc.
+    Use cases: Caching HTML/JSON, counters, feature flags.
+
+List - Ordered sequences, supports push/pop from either side.
+    Commands: LPUSH, RPUSH, LPOP, RPOP, LRANGE, etc.
+    Use cases: Message queues, recent activity feeds, task lists.
+
+Set  - Unordered collection of unique strings.
+    Commands: SADD, SREM, SMEMBERS, SISMEMBER, SUNION, etc.
+    Use cases: storing tags, unique visitors, removing duplicates.
+
+Sorted Set (ZSet) - Like a set, but each element has an associated score for sorting.
+    Commands: ZADD, ZRANGE, ZREVRANGE, ZREM
+    Use cases: leaderboards, rankings, priority queues.
+
+Hash -  Stores multiple field-value pairs under one key.
+    Commands: HSET, HGET, HMSET, HGETALL, HDEL
+    Use cases: user profiles, storing objects, metadata.
+
+Stream - Log-like append-only structure for events.
+    Commands: XADD, XREAD, XRANGE, XDEL
+    Use cases: event sourcing, chat messages, activity logs.
+
+Bitmap - Bit-level operations inside a string.
+    Commands: SETBIT, GETBIT, BITCOUNT, BITOP
+    Use cases: user activity tracking, binary flags.
+
+HyperLogLog - Probabilistic data structure for approximate unique counts.
+    Commands: PFADD, PFCOUNT, PFMERGE
+    Use cases: counting unique visitors, estimating set cardinality.
+
+Geospatial - Stores and queries location data.
+    Commands: GEOADD, GEODIST, GEORADIUS
+    Use cases: nearby location search, delivery areas.
+
+
+
+
+------ SECURITY ------
+
+Redis is designed to be accessed by trusted clients inside trusted environments.
+Usually, it is not a good idea to expose the Redis instance directly to the internet or environments where untrusted
+clients can directly access the Redis TCP port or UNIX socket.
+
+Good security practices also includes:
+    Bind Redis to 127.0.0.1 or require AUTH for remote access.
+    Use TLS (Transport Layer Security) for encryption
+
+For additional info, see https://redis.io/docs/latest/operate/oss_and_stack/management/security/

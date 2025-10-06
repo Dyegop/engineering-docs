@@ -1,0 +1,139 @@
+------ DOCKER-COMPOSE COMMANDS ------ 
+
+docker compose up: Create and start containers
+docker compose up -d: Create and start containers in detached mode
+docker compose up --build: Rebuilds images from the Dockerfile(s) before starting the services
+docker compose down: Stop and remove containers, networks, images, and volumes
+docker compose build: Build or rebuild services
+docker compose logs: View output from containers
+docker compose start: Start services
+docker compose stop: Stop services
+docker compose ps: List containers
+
+
+
+
+------ DOCKERCOMPOSE FILE ------
+
+version
+- Specifies the Compose file format version.
+- Determines what features are available.
+
+
+services
+- Defines containers (services) to run.
+- Each service is like a docker run command but in YAML.
+
+
+image
+- Uses an existing image from Docker Hub or another registry.
+
+
+build
+- Builds an image from a Dockerfile in a local directory.
+- Can take a context and optional dockerfile path.
+- Example:
+    build: .  # builds in local directory
+    build:    # builds in given path (context) using specific Dockerfile
+      context: ./app
+      dockerfile: Dockerfile.dev
+      args:   # args are build-time variables
+        VERSION: "1.2.3"
+
+
+ports
+- Maps host ports to container ports.
+- Format: "host_port:container_port".
+- Example:
+    ports:
+      - "5000:5000"
+
+
+volumes
+- Mounts host paths or named volumes into containers.
+- Good for persisting data or mounting source code.
+- Format:
+    - ./host/path:/container/path
+    - /absolute/host/file.conf:/etc/file.conf:ro  # readonly mount
+
+
+environment
+- Sets environment variables for the container.
+
+
+command
+- Overrides the default command from the Dockerfile (CMD).
+
+
+depends_on
+- Controls service startup order.
+- It tells Docker Compose to start a service only after the indicated services have been started.
+
+
+restart
+- Restart policy for containers.
+- Options: no (default), always, on-failure, unless-stopped.
+
+
+networks:
+- Defines custom networks for inter-service communication.
+- By default, Docker Compose creates a default network where all services can communicate by their service name.
+- You can also define custom networks to isolate services or control communication.
+- Example:
+    services:
+      app:
+        image: myapp
+        networks:
+          - frontend
+          - backend
+
+      db:
+        image: postgres
+        networks:
+          - backend
+
+    networks:
+      frontend:
+      backend:
+
+
+healthcheck
+- Lets you define a command inside a container that tests whether the service is healthy and ready.
+- Docker runs this command periodically and tracks the container’s health status.
+- Example:
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+
+config
+- Allows you to inject configuration data into containers at runtime.
+- Configs are read-only inside containers and can be easily updated without rebuilding images.
+- Example:
+    services:
+      app:
+        image: myapp
+        configs:
+          - source: app_config
+            target: /etc/myapp/config.yaml  # path inside container
+
+    configs:
+      app_config:
+        file: ./config/config.yaml  # local config file
+
+
+secrets
+- Similar to config, but secrets are encrypted and managed securely by Docker.
+- Like configs, secrets are mounted read-only inside the container.
+- Example:
+    services:
+      db:
+        image: postgres
+        secrets:
+          - db_password
+
+    secrets:
+      db_password:
+        file: ./secrets/db_password.txt  # local secret file

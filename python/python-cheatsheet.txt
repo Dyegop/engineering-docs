@@ -1,0 +1,212 @@
+------ DATA TYPES ------
+
+Speed difference between `list`, `tuple`, `set`, `dictionary`
+    list and tuple – O(1) index access, O(n) search by iterating elements
+    set and dict   – O(1) lookup by key
+        Both use a hash table under the hood.
+
+
+Tuple vs List:
+    Tuple is more efficient than a list because is immutable, so Python can optimize memory allocation when it's
+    created.
+    Tuple is hashable, so it can be used as a dictionary key.
+
+
+Dicts:
+    Since Python 3.7, dict preserves insertion order.
+
+
+Frozenset:
+    A frozenset is the immutable version of set.
+    It's hashable, so it can be used as a dict key or as a member of a set
+
+
+Queue vs Stack:
+    Queues are FIFO (First In First Out), therefore, elements are removed in the order they were added.
+    Stacks are LIFO (Last In First Out), therefore, elements are removed in reverse order of addition.
+
+    Queues are implemented with `collections.deque` or `queue.Queue`.
+    Stacks are implemented with `collections.deque` or lists.
+
+
+Shallow copy vs deepcopy:
+    Shallow copy copies the outer object, but nested objects are shared.
+    Deep copy recursively copies all nested objects.
+
+    a = [[1], [2]]
+    b = copy.copy(a)
+    c = copy.deepcopy(a)
+
+    a[0][0] = 99
+    print(b)  # [[99], [2]]
+    print(c)  # [[1], [2]]
+
+
+
+
+------ SCOPES ------
+
+When accessing a variable, Python follows the scope lookup order (LEGB):
+    Local     – Inside the current function
+    Enclosing – Any outer functions (if nested)
+    Global    – Top-level of module/script
+    Built-in  – Python’s standard library
+
+
+Keyword global vs nonlocal:
+    global   - Used to modify a global variable from inside a function.
+    nonlocal - Used to modify a non-local, enclosing variable in a nested function.
+
+
+
+------ FLOW CONTROL ------
+
+Differences between `break` and `continue`:
+    break    - Exits the nearest enclosing loop
+    continue - Skips the current iteration of the nearest enclosing loop
+
+    In case of nested loops, they only break/continue the inner loop
+
+
+Difference between `is` and `==` in an if condition:
+    is - checks for identity (same memory address), therefore it is more efficient
+    == - checks for equality of value (it calls the __eq__ method)
+
+
+Difference between `if-else` and `match-case`:
+    Use match-case for multiple known patterns or structured data (more readable).
+    Use if for general condition checks, especially when comparing expressions or ranges.
+
+
+AND/OR logical operators:
+    a and b - if a is falsy, b is not evaluated.
+    a or b  - if a is truthy, b is not evaluated.
+
+
+What happens if you use return in both try and finally?
+The finally's return overrides the one in try, which may silently suppress exceptions or change return values.
+
+
+Generator control flow with `yield` `send`, `throw`:
+    yield       - pauses function and sends a value
+    send(value) - resumes function execution and injects a value to previous yield
+    throw(exc)  - resumes function execution and raises an exception inside the generator
+
+    def flow():
+    try:
+        val = yield "Start"
+        while True:
+            try:
+                val = yield f"Got {val}"
+            except Exception as e:
+                yield f"Caught {e}"
+    finally:
+        print("Generator closing")
+
+    g = flow()
+    print(next(g))                     # → "Start"
+    print(g.send("hello"))             # → "Got hello"
+    print(g.throw(TypeError("oops")))  # → "Caught oops"
+    g.close()                          # → triggers finally block
+
+
+
+
+------ BUILT-IN FUNCTIONS ------
+
+zip - Combines elements from multiple iterables into tuples.
+    Stops when the shortest input iterable is exhausted.
+    Used for parallel iteration.
+
+filter/filterfalse - Filters items from an iterable if the output of a given function applied to each item is True/False.
+
+map - Applies a function to every element of an iterable.
+
+enumerate -	Adds a counter/index to an iterable, returning an iterator of (index, item) tuples.
+    Useful when you need both the item and its position in a loop.
+
+reduce - Applies a function cumulatively to items, reducing them to a single value.
+    Useful for summing, multiplying, or combining items.
+
+all/any	- Returns True if all/any elements in an iterable are truthy.
+
+chain -	Concatenates multiple iterables into a single one.
+
+
+
+
+------ EXCEPTIONS ------
+
+Managing exceptions:
+    try:
+        # risky operation
+    except ValueError:
+        # handle specific error
+    except (RuntimeError, TypeError, NameError):
+        # handle multiple errors
+    else:
+        # runs if no exception
+    finally:
+        # always runs
+
+
+BaseException vs Exception:
+    BaseException is the top-most parent of all exceptions.
+    Exception inherits from BaseException and covers the normal error cases your code usually wants to catch.
+
+    You usually catch Exception, not BaseException, to avoid intercepting system-exit signals like `KeyboardInterrupt`.
+
+
+
+
+------ PARALLELISM ------
+
+GIL (Global Interpreter Lock)
+    A mutex (or a lock) that allows only one thread to hold the control of the Python interpreter.
+
+
+Multithreading vs Multiprocessing:
+
+    Multithreading
+        Allows a single process to run multiple threads concurrently.
+        Each thread represents a separate flow of execution within the same process.
+        Thread share memory and resources.
+        Threads need synchronization tools (e.g., Locks, Queues) to prevent race conditions.
+        Multithreading is blocked by the GIL (only one thread runs at a time).
+
+    Multiprocessing
+        Runs code in separate processes, bypassing the GIL.
+        Each process has its own Python interpreter and memory space.
+        The number of processes is limited by the amount of CPU cores.
+
+    Use multithreading for I/O-bound tasks (e.g., downloading files, API calls)
+    Use multiprocessing for CPU-bound tasks (e.g., image processing, ML)
+
+
+Asyncio
+    Asyncio is a built-in Python asynchronous I/O framework used to write single-threaded, concurrent code using
+    coroutines, event loops, and non-blocking I/O.
+
+    Coroutine  - A function defined with async def, capable of pausing and resuming execution using await.
+    Event Loop - A scheduler that runs async tasks and callbacks.
+    Task       - A wrapper that schedules a coroutine to run on the event loop.
+    Future     - A low-level object representing a result that is not yet available.
+
+    Use asyncio when:
+        Making many concurrent I/O-bound operations (e.g., HTTP requests, DB calls).
+        Avoiding threads or processes when tasks don’t need true parallelism.
+
+
+Comparative Asyncio vs Multithreading vs Multiprocessing
+
+| Feature          | asyncio      | multithreading | multiprocessing   |
+| ---------------- | ------------ | -------------- | ----------------- |
+| Concurrency type | Cooperative  | Pre-emptive    | True parallelism  |
+| GIL Impact       | Not affected | Affected       | Not affected      |
+| Best for         | I/O-bound    | I/O-bound      | CPU-bound         |
+| Overhead         | Very low     | Medium         | High              |
+| Parallelism      | No           | Limited        | Yes               |
+
+    *cooperative - Each task voluntarily yields control
+    *pre-emptive - The OS scheduler decides when to pause and resume threads
+    *overhead    - Extra resources that a concurrency model requires to manage multiple tasks.

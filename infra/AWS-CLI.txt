@@ -1,0 +1,27 @@
+------ COMMANDS ------ 
+
+aws configure: Configures the AWS CLI with credentials
+aws configure list [--profile profile-name]: Lists the profile, access key, secret key, and region for the specified profile
+aws configure list-profiles: Lists configured profiles
+aws ecr get-login-password --region region: Retrieves an authentication token from AWS ECR 
+
+
+
+
+------ PULL DOCKER IMAGE FROM AWS ECR ------
+
+AWS Elastic Container Registry (ECR) is primarily used to store Docker container images. 
+If you are looking to download images from AWS ECR, you can follow these steps:
+	
+	1. Install AWS CLI and Docker:
+		-Make sure you have AWS CLI installed on your local machine. You can install it by following the instructions here.
+		-Ensure Docker is installed and running. You can download and install Docker from here.
+
+    2. Authenticate Docker to AWS ECR:
+		-Use the AWS CLI to authenticate Docker to your Amazon ECR registry. 
+		-Run the following command to get an authentication token and authenticate Docker:
+			aws ecr get-login-password --region your-region | docker login --username AWS --password-stdin your-account-id.dkr.ecr.your-region.amazonaws.com
+
+	3. Pull an Image from ECR:
+		-Once authenticated, you can pull an image from your ECR repository using Docker. Run the following command:
+			docker pull your-account-id.dkr.ecr.your-region.amazonaws.com/your-repository-name:tag

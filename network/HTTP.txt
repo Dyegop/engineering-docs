@@ -1,0 +1,131 @@
+------ HTTP BASICS ------
+
+HTTP (Hypertext Transfer Protocol) is a protocol used by web browsers and servers to communicate.
+It is stateless, text-based, and follows a request-response model.
+
+
+HTTP Request/Response Syntax:
+
+GET /users?id=123 HTTP/1.1
+Host: api.example.com
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{ "name": "Test" }
+
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{ "id": 123, "name": "Diego" }
+
+
+Method: GET, POST, etc.
+Path/URL: /users?id=123
+Version: HTTP/1.1
+Headers: Metadata (host, authorization, content-type, user-agent, etc)
+Body: Payload (used in POST/PUT)
+
+
+
+
+------ HTTP METHODS ------
+
+| Method    | Use Case                              | Body Allowed | Idempotent | Safe  |
+| --------- | ------------------------------------- | ------------ | ---------- | ----- |
+| GET       | Retrieve a resource                   | No           | Yes        | Yes |
+| POST      | Create a new resource                 | Yes          | No         | No  |
+| PUT       | Replace a resource (full update)      | Yes          | Yes        | No  |
+| PATCH     | Partially update a resource           | Yes          | Yes        | No  |
+| DELETE    | Delete a resource                     | Sometimes    | Yes        | No  |
+| HEAD      | Same as GET, no response body         | No           | Yes        | Yes |
+| OPTIONS   | Discover supported HTTP methods       | No           | Yes        | Yes |
+| CONNECT   | Establish a tunnel (e.g., for HTTPS)  | Rarely       | Yes        | No  |
+| TRACE     | Echo the received request (debugging) | No           | Yes        | Yes |
+
+
+
+
+------ STATUS CODES ------
+
+1xx — Informational
+
+| Code | Meaning                         | Description                                         |
+| ---- | ------------------------------- | --------------------------------------------------- |
+| 100  | Continue                        | Client should continue request                      |
+| 101  | Switching Protocols             | Server is switching to a different protocol         |
+| 102  | Processing (WebDAV)             | Server has received and is processing the request   |
+| 103  | Early Hints                     | Used to preload resources before final response     |
+
+
+2xx — Success
+
+| Code | Meaning                         | Description                                         |
+| ---- | ------------------------------- | --------------------------------------------------- |
+| 200  | OK                              | Request succeeded                                   |
+| 201  | Created                         | New resource created                                |
+| 202  | Accepted                        | Request accepted but processing not complete        |
+| 203  | Non-Authoritative Info          | Metadata may differ from origin server              |
+| 204  | No Content                      | Success, but no content returned                    |
+| 205  | Reset Content                   | Client should reset form/view                       |
+| 206  | Partial Content                 | Partial response (e.g., video streams)              |
+| 207  | Multi-Status (WebDAV)           | Multiple responses for batch operations             |
+| 208  | Already Reported                | Resource previously reported                        |
+| 226  | IM Used                         | Response is result of instance-manipulations        |
+
+
+3xx — Redirection
+
+| Code | Meaning                         | Description                                         |
+| ---- | ------------------------------- | --------------------------------------------------- |
+| 300  | Multiple Choices                | More than one resource found                        |
+| 301  | Moved Permanently               | Resource moved to new URL                           |
+| 302  | Found (Temporary)               | Temporary redirect                                  |
+| 303  | See Other                       | Redirect using GET method                           |
+| 304  | Not Modified                    | Cached version is valid                             |
+| 305  | Use Proxy (deprecated)          | Use a proxy to access resource                      |
+| 307  | Temporary Redirect              | Same method must be used on redirect                |
+| 308  | Permanent Redirect              | Like 301, but keeps method/headers                  |
+
+
+4xx — Client Errors
+
+| Code | Meaning                         | Description                                         |
+| ---- | ------------------------------- | --------------------------------------------------- |
+| 400  | Bad Request                     | Invalid request format                              |
+| 401  | Unauthorized                    | Auth required                                       |
+| 402  | Payment Required                | Reserved for future use                             |
+| 403  | Forbidden                       | Auth valid but no permission                        |
+| 404  | Not Found                       | Resource doesn't exist                              |
+| 405  | Method Not Allowed              | Method not supported on resource                    |
+| 406  | Not Acceptable                  | No content matches `Accept` headers                 |
+| 407  | Proxy Auth Required             | Proxy needs authentication                          |
+| 408  | Request Timeout                 | Client took too long                                |
+| 409  | Conflict                        | Conflict with current resource state                |
+| 410  | Gone                            | Resource was deleted                                |
+| 411  | Length Required                 | Missing `Content-Length` header                     |
+| 412  | Precondition Failed             | `If-*` headers failed                               |
+| 413  | Payload Too Large               | Body too large                                      |
+| 414  | URI Too Long                    | URL too long                                        |
+| 415  | Unsupported Media Type          | e.g., wrong Content-Type                            |
+| 416  | Range Not Satisfiable           | Requested byte range not valid                      |
+| 417  | Expectation Failed              | Server can't meet expectations in request           |
+| 418  | I'm a teapot 🍵                 | Easter egg (RFC 2324)                               |
+| 422  | Unprocessable Entity            | Semantically invalid request (e.g., validation)     |
+| 426  | Upgrade Required                | Client must switch protocol (e.g., to TLS)          |
+| 429  | Too Many Requests               | Rate limit exceeded                                 |
+
+
+5xx — Server Errors
+
+| Code | Meaning                         | Description                                         |
+| ---- | ------------------------------- | --------------------------------------------------- |
+| 500  | Internal Server Error           | General server error                                |
+| 501  | Not Implemented                 | Method not supported                                |
+| 502  | Bad Gateway                     | Invalid response from upstream server               |
+| 503  | Service Unavailable             | Server overloaded or under maintenance              |
+| 504  | Gateway Timeout                 | Upstream server did not respond                     |
+| 505  | HTTP Version Not Supported      | Version not supported                               |
+| 507  | Insufficient Storage            | WebDAV — no space to store resource                 |
+| 508  | Loop Detected                   | Infinite loop detected in processing                |
+| 511  | Network Authentication Required | Must authenticate on network (e.g., captive portal) |
