@@ -126,32 +126,32 @@ CMD
 ------ DOCUMENTATION ------
 
 Images
-    -A Docker image is a read-only template that contains a filesystem snapshot (like code, dependencies, binaries) and
+    A Docker image is a read-only template that contains a filesystem snapshot (like code, dependencies, binaries) and
     metadata (like environment variables, entrypoints, etc.)
-    -Images serve as a blueprint for creating Docker containers.
-    -They are often built using a Dockerfile, which is a script containing a series of instructions for how to create
+    Images serve as a blueprint for creating Docker containers.
+    They are often built using a Dockerfile, which is a script containing a series of instructions for how to create
     the image.
 
 Containers
-    -A container is a running instance of an image.
-    -Containers are isolated from each other and the host system, but they can communicate with each other.
-    -Each container contains an application and its dependencies, and it shares the kernel of the host operating system.
+    A container is a running instance of an image.
+    Containers are isolated from each other and the host system, but they can communicate with each other.
+    Each container contains an application and its dependencies, and it shares the kernel of the host operating system.
 
 Volumes
-    -A volume is a persistent storage mechanism managed by Docker.
-    -It stores data outside the container filesystem, so it’s not lost when the container is deleted.
-    -They provide a way to decouple the data from the container lifecycle.
-    -Volumes can be shared among multiple containers.
+    A volume is a persistent storage mechanism managed by Docker.
+    It stores data outside the container filesystem, so it’s not lost when the container is deleted.
+    They provide a way to decouple the data from the container lifecycle.
+    Volumes can be shared among multiple containers.
 
 Layers
-    -A layer is a snapshot of the filesystem at a certain step during the build.
-    -Layers are:
+    A layer is a snapshot of the filesystem at a certain step during the build.
+    Layers are:
         Stacked to form the final image
         Immutable (unchangeable once created)
         Cached for faster rebuilds
         Read-only once created
 
-    -Important notes:
+    Important notes:
         Each command run in a Dockerfile creates a new, separate image layer.
         Combining commands to reduce the amount of layers, reducing the image size, for example:
             RUN apt update && apt install -y curl
@@ -161,17 +161,17 @@ Layers
                 package list and install outdated packages.
 
 Container Filesystem
-    -The container's filesystem in Docker is a layered, isolated environment where a container runs.
-    -When you run a container from an image, Docker adds a writable layer (called the container layer) on top of the
+    The container's filesystem in Docker is a layered, isolated environment where a container runs.
+    When you run a container from an image, Docker adds a writable layer (called the container layer) on top of the
     image layers.
-    -So the full container filesystem would be: [Base image layers] + [Writable container layer]
-    -Data in thw writable container layer is lost if the container is deleted, unless stored in a volume.
+    So the full container filesystem would be: [Base image layers] + [Writable container layer]
+    Data in thw writable container layer is lost if the container is deleted, unless stored in a volume.
 
 Network
-    -Docker Compose creates a private network for your app.
-    -All services in the same docker-compose.yml file are automatically connected to that network.
-    -Services can talk to each other by service name (e.g. http://my-app:8000).
-    -You don’t need to expose ports to allow services to talk to each other inside the same Compose project.
+    Docker Compose creates a private network for your app.
+    All services in the same docker-compose.yml file are automatically connected to that network.
+    Services can talk to each other by service name (e.g. http://my-app:8000).
+    You don’t need to expose ports to allow services to talk to each other inside the same Compose project.
 
 
 
