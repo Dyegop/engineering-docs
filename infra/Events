@@ -1,0 +1,138 @@
+------ EVENT ARCHITECTURAL PATTERNS ------
+
+Direct Communication (Tight Coupling):
+
+One service calls another directly via HTTP/REST or gRPC.
+Communication is synchronous — the caller waits for a response.
+
+Pros:
+    Simple to implement.
+    Immediate feedback (easy error handling).
+
+Cons:
+    Tight coupling: both services must be available.
+    Failures cascade (if one service is down, others fail).
+    Poor scalability for event-driven workflows.
+
+Use -> For simple, small systems or when low latency and immediate responses are needed.
+
+
+Asynchronous Messaging (Queues):
+
+Services communicate via a message queue (e.g., Amazon SQS, RabbitMQ).
+The producer sends messages to a queue; consumers process them asynchronously.
+
+Pros:
+    Decouples producer and consumer lifecycles.
+    Natural retry and buffering mechanisms.
+    Good for job/task offloading (e.g., email sending, billing).
+
+Cons:
+    One consumer per message (no fan-out).
+    Harder to trace request flow across services.
+    Message ordering and duplication must be handled carefully.
+
+Use -> For reliable task execution and load leveling between services.
+
+
+Publish–Subscribe (Event Broadcasting):
+
+A service publishes an event once.
+Multiple subscribers receive a copy of that event.
+Implemented via SNS, EventBridge, Kafka, or Pub/Sub.
+
+Pros:
+    Decoupled and scalable: new consumers can subscribe without changing producers.
+    Multiple services can react differently to the same event.
+    Natural fit for event-driven microservices.
+
+Cons:
+    Harder to ensure event ordering and idempotency.
+    Event replay depends on broker (e.g., possible in Kafka, not in SNS).
+    Harder to trace cause–effect relationships.
+
+Use -> When multiple services must react to domain events (e.g., OrderCreated, PaymentFailed).
+
+
+Event Streams (Log-based):
+
+Services produce events to a durable, append-only log (Kafka, Kinesis, Pulsar).
+Consumers read the stream at their own pace and can replay history.
+
+Pros:
+    High throughput, replay capability, persistent history.
+    Enables event sourcing, analytics, and temporal joins.
+    Each consumer maintains its own offset (decoupled).
+
+Cons:
+    Higher operational complexity.
+    Requires managing schema evolution and retention.
+    Consumers must be idempotent.
+
+Use -> For event sourcing, stream processing, or audit/logging pipelines.
+
+
+Event Bus (Routing with Rules):
+
+Central event router that delivers events to targets based on filters/rules.
+Examples are Amazon EventBridge or GCP Eventarc.
+
+Pros:
+    Centralized routing and filtering.
+    Integrates easily with cloud services.
+    Dynamic — you can add subscribers without touching producers.
+
+Cons:
+    Limited retention (24 hours in EventBridge).
+    Not suited for high-volume data streaming.
+
+Use -> For integration of AWS services or cross-service workflows where routing logic is needed.
+
+
+Event Sourcing:
+
+The system’s state is derived from a sequence of events rather than direct updates.
+Every state change emits an event (AccountCredited, OrderShipped, etc.) stored in an event log.
+
+Pros:
+    Perfect audit trail.
+    Enables replay/rebuild of state.
+    Natural fit for CQRS (Command Query Responsibility Segregation).
+
+Cons:
+    Requires careful schema/version management.
+    Eventual consistency between read models and event store.
+
+Use -> For financial systems, auditing, or temporal business logic.
+
+
+Orchestration (Central Coordinator):
+
+A central service (or workflow engine) coordinates events or tasks.
+Examples are AWS Step Functions, Temporal, Camunda.
+
+Pros:
+    Central control, clear state tracking.
+    Easier to model complex workflows and compensation logic (SAGA).
+
+Cons:
+    Some coupling around the orchestrator.
+    Can become a single point of failure if not managed properly.
+
+Use -> For long-running, multi-step workflows (e.g., order processing, booking systems).
+
+
+Choreography (Event-Driven Workflow):
+
+No central orchestrator. Each service reacts to events and emits new ones.
+Example: OrderCreated → triggers PaymentService, which emits PaymentCompleted → triggers ShippingService.
+
+Pros:
+    Fully decoupled; services know only about events, not each other.
+    Highly scalable and flexible.
+
+Cons:
+    Harder to trace and debug workflows.
+    Complex error handling and compensation logic.
+
+Use -> For loosely coupled, reactive microservices with independent lifecycles.
