@@ -1,6 +1,9 @@
 ------ BASICS ------
 
-A record in MongoDB is a document, which is a data structure composed of field and value pairs.
+MongoDB is a NoSQL database.
+MongoDB supports ACID (Atomicity, Consistency, Isolation, Durability) transactions.
+
+A record in MongoDB is a document, which is a data structure composed of key-value pairs.
 MongoDB stores documents in collections which are analogous to tables in relational databases.
 Official documentation: https://www.mongodb.com/docs/manual/
 
